@@ -174,7 +174,7 @@ def compressInputList(rawInputList):
         elif not prevInputRaw.brake:
             compressedInput[1] = 1
         elif rawInput.drift and not prevInputRaw.drift:
-            compressedInput[1] = 3-prevInputCompressed
+            compressedInput[1] = 3-prevInputCompressed[1]
         else:
             compressedInput[1] = prevInputCompressed[1]
 
