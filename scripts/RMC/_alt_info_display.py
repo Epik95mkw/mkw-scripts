@@ -81,11 +81,6 @@ External Velocity
   XZ:   {round_str(ev.length_xz())}  ({delta(ev.length_xz(), prev_values[player_idx].get("ev_xz"))})
   Y:    {round_str(ev.y)}  ({delta(ev.y, prev_values[player_idx].get("ev_y"))})
 
-Lean Rotation
-  Angle:  {is_bike and round_(kart_move.lean_rot())}
-  Rate:   {is_bike and round_(kart_move.lean_rot_increase())}
-  Cap:    {is_bike and round_(kart_move.lean_rot_cap())}
-
 Boosts
   MT: {kart_move.mt_charge()} / 270 -> {kart_move.mt_boost_timer()}
   SSMT: {kart_move.ssmt_charge()} / 75 -> {kart_boost.all_mt_timer() - kart_move.mt_boost_timer()}
@@ -101,6 +96,9 @@ Airtime: {kart_move.airtime()}
 Wallhug: {(surface_properties & mkw.SurfaceProperties.WALL) > 0}
 Barrel Roll: {kart_state.bitfield(field_idx=3) & 0x10 > 0}
 
+HWG Timer: {kart_state.hwg_timer()}
+Glitchy corner: {round_(kart_collide.glitchy_corner())}
+
 Surface properties: {surface_properties}
 """)
 
@@ -108,8 +106,10 @@ Surface properties: {surface_properties}
     _unused = (
 
 """
-HWG Timer: {kart_state.hwg_timer()}
-Glitchy corner: {round_(kart_collide.glitchy_corner())}
+Lean Rotation
+  Angle:  {is_bike and round_(kart_move.lean_rot())}
+  Rate:   {is_bike and round_(kart_move.lean_rot_increase())}
+  Cap:    {is_bike and round_(kart_move.lean_rot_cap())}
 
 Cooldowns
   Wheelie: {kart_move.wheelie_cooldown()} | Trick: {kart_jump.cooldown()}

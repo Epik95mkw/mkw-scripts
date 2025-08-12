@@ -10,6 +10,7 @@ from Modules.mkw_utils import frame_of_input
 from Modules.mkw_classes import RaceManager, RaceState
 
 PLAYER_STR = ["player", "ghost"]
+initialized = False
 
 # Button functions
 
@@ -164,6 +165,9 @@ def main():
     window_script_path = os.path.join(utils.get_script_dir(), "external", "ttk_gui_window.py")
     ex.start_external_script(window_script_path)
 
+    global initialized
+    initialized = True
+
 
         
 # Function that watches for button events
@@ -171,6 +175,9 @@ def main():
 # either `on_timertick` when the game is paused
 # or `on_frameadvance` when the game isn't paused
 def listen_for_buttons():
+    if not initialized:
+        print('not initialized')
+        return
 
     # If window sent a button event, add it to queue
     button_event = shm_buttons.read()[:4]

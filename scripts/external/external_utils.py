@@ -185,4 +185,7 @@ def load_external_setting(config_file, setting_name):
     if config["SETTINGS"].get(setting_name):
         return config["SETTINGS"].get(setting_name)
     return None
-   
+
+if __name__ == '__main__':
+    shm = SharedMemoryBlock(shared_memory.SharedMemory(create=True, name='shm_buttons1', size=4))
+    shm.destroy()
