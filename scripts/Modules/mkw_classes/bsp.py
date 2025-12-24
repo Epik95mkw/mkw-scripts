@@ -21,11 +21,11 @@ class BSP:
         def enable(player_idx=0, hitbox_idx=0) -> int:
             hitbox_ref = BSP.Hitbox.chain(player_idx, hitbox_idx)
             enable_ref = hitbox_ref + 0x0
-            return memory.read_u8(enable_ref)
+            return memory.read_u16(enable_ref)
 
         def inst_enable(self) -> int:
             enable_ref = self.addr + 0x0
-            return memory.read_u8(enable_ref)
+            return memory.read_u16(enable_ref)
 
         @staticmethod
         def pos(player_idx=0, hitbox_idx=0) -> vec3:
@@ -51,11 +51,11 @@ class BSP:
         def walls_only(player_idx=0, hitbox_idx=0) -> int:
             hitbox_ref = BSP.Hitbox.chain(player_idx, hitbox_idx)
             walls_only_ref = hitbox_ref + 0x14
-            return memory.read_u8(walls_only_ref)
+            return memory.read_u16(walls_only_ref)
 
         def inst_walls_only(self) -> int:
             walls_only_ref = self.addr + 0x14
-            return memory.read_u8(walls_only_ref)
+            return memory.read_u16(walls_only_ref)
 
     class Wheel:
         def __init__(self, player_idx=0, wheel_idx=0, addr=None):

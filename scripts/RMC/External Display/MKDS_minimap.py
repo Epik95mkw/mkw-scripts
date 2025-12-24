@@ -4,7 +4,7 @@ import struct
 from external import external_utils as ex
 from Modules import agc_lib as lib
 from Modules import settings_utils as setting
-from Modules.mkw_classes import RaceManager, RaceState, VehiclePhysics, vec3
+from Modules.mkw_classes import RaceManager, RaceState, VehiclePhysics, vec3, BSP
 from Modules import mkw_utils as mkw_utils
 import os
 
@@ -21,6 +21,7 @@ def history_to_bytes(p):
         res = res + bytearray(struct.pack("f", frame_data['ghost'].x))
         res = res + bytearray(struct.pack("f", frame_data['ghost'].z))
     return bytes(res)
+
 
 def get_all_checkpoints():
     ''' The encode will be 4 bytes for left point_x, followed by 4 bytes for left point_z
@@ -46,6 +47,14 @@ def get_all_checkpoints():
         id_list = id_list + bytearray(struct.pack("b", memory.read_s8(kmp_ref+0x4C+offset+0x8+0x11)))
         offset += 0x14
     return bytes(res[:256*16]), bytes(id_list[:256])
+
+
+def get_hitbox_data():
+    hitboxes: list[BSP.Hitbox] = []
+    for i in range(0, 16):
+        hitbox = BSP.Hitbox(player_idx=0, hitbox_idx=i)
+        if hitboxes and (hitbox.pos() == hitboxes[-1].pos()) and (hitbox.radius() == hitboxes[-1].radius()):
+            ...
 
 
     
