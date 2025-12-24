@@ -17,6 +17,8 @@ GHOST_DISPLAY = False
 
 ROUND_DIGITS = 6
 TEXT_COLOR = 0xFFFFFFFF
+PLAYER_TEXT_POSITION = (10, 10)
+GHOST_TEXT_POSITION = (260, 10)
 
 def round_(x, digits=ROUND_DIGITS):
     return round(x or 0, digits)
@@ -81,31 +83,39 @@ External Velocity
   XZ:   {round_str(ev.length_xz())}  ({delta(ev.length_xz(), prev_values[player_idx].get("ev_xz"))})
   Y:    {round_str(ev.y)}  ({delta(ev.y, prev_values[player_idx].get("ev_y"))})
 
-Boosts
-  MT: {kart_move.mt_charge()} / 270 -> {kart_move.mt_boost_timer()}
-  SSMT: {kart_move.ssmt_charge()} / 75 -> {kart_boost.all_mt_timer() - kart_move.mt_boost_timer()}
-  Mushroom: {kart_move.mushroom_timer()} | Trick: {kart_boost.trick_and_zipper_timer()}
-  Auto Drift: {kart_move.auto_drift_start_frame_counter()} / 12
+Lean Rotation
+  Angle:  {is_bike and round_(kart_move.lean_rot())}
+  Rate:   {is_bike and round_(kart_move.lean_rot_increase())}
+  Cap:    {is_bike and round_(kart_move.lean_rot_cap())}
 
 Checkpoints
   Lap%:  {round_str(race_mgr_player.lap_completion())}
   Race%: {round_str(race_mgr_player.race_completion())}
   CP: {race_mgr_player.checkpoint_id()} | KCP: {race_mgr_player.max_kcp()} | RP: {race_mgr_player.respawn()}
 
-Airtime: {kart_move.airtime()}
+Boosts
+  MT: {kart_move.mt_charge()} / 270 -> {kart_move.mt_boost_timer()}
+  SSMT: {kart_move.ssmt_charge()} / 75 -> {kart_boost.all_mt_timer() - kart_move.mt_boost_timer()}
+  Mushroom: {kart_move.mushroom_timer()} | Trick: {kart_boost.trick_and_zipper_timer()}
+  Auto Drift: {kart_move.auto_drift_start_frame_counter()} / 12
+
+Airtime: {kart_move.airtime()} ({(kart_move.airtime() + 1) if (surface_properties & 0x1000) == 0 else 0})
 Wallhug: {(surface_properties & mkw.SurfaceProperties.WALL) > 0}
 Barrel Roll: {kart_state.bitfield(field_idx=3) & 0x10 > 0}
 
 HWG Timer: {kart_state.hwg_timer()}
 Glitchy corner: {round_(kart_collide.glitchy_corner())}
 
-Surface properties: {surface_properties}
 """)
 
     #? Other infodisplay sections that can be copy/pasted in if needed
     _unused = (
 
 """
+
+
+Surface properties: {surface_properties}
+
 Lean Rotation
   Angle:  {is_bike and round_(kart_move.lean_rot())}
   Rate:   {is_bike and round_(kart_move.lean_rot_increase())}
@@ -139,9 +149,9 @@ def update_infodisplay():
     if EXTERNAL_MODE:
         shm_writer.write_text(create_infodisplay())
     else:
-        gui.draw_text((10, 10), TEXT_COLOR, create_infodisplay(player_idx=0))
+        gui.draw_text(PLAYER_TEXT_POSITION, TEXT_COLOR, create_infodisplay(player_idx=0))
         if GHOST_DISPLAY:
-            gui.draw_text((260, 10), TEXT_COLOR, create_infodisplay(player_idx=1))
+            gui.draw_text(GHOST_TEXT_POSITION, TEXT_COLOR, create_infodisplay(player_idx=1))
 
 @event.on_frameadvance
 def on_frame_advance():

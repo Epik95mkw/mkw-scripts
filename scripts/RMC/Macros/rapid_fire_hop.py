@@ -5,9 +5,7 @@ from dolphin import controller, event # type: ignore
 from Modules import mkw_classes as mkw
 from Modules.macro_utils import MKWiiGCController
 
-
-@event.on_frameadvance
-def on_frame_advance():
+def on_frame_advance(*_):
     if mkw.RaceManager().state() != mkw.RaceState.RACE:
         return
 
@@ -15,7 +13,10 @@ def on_frame_advance():
     user_inputs = ctrl.user_inputs()
 
     if user_inputs["B"]:
-        hop_pressed = mkw.KartState.bitfield() & 0x80 > 0
+        drift_input = mkw.KartState.bitfield() & 4 > 0
         ctrl.set_inputs({
-            "B": not hop_pressed,
+            "B": not drift_input,
         })
+
+event.on_frameadvance(on_frame_advance)
+event.on_savestateload(on_frame_advance)
