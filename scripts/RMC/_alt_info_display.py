@@ -94,7 +94,7 @@ Checkpoints
   CP: {race_mgr_player.checkpoint_id()} | KCP: {race_mgr_player.max_kcp()} | RP: {race_mgr_player.respawn()}
 
 Boosts
-  MT: {kart_move.mt_charge()} / 270 -> {kart_move.mt_boost_timer()}
+  MT: {kart_move.mt_charge() + (1 if kart_move.drift_state() == 2 else 0)} / 271 -> {kart_move.mt_boost_timer()}
   SSMT: {kart_move.ssmt_charge()} / 75 -> {kart_boost.all_mt_timer() - kart_move.mt_boost_timer()}
   Mushroom: {kart_move.mushroom_timer()} | Trick: {kart_boost.trick_and_zipper_timer()}
   Auto Drift: {kart_move.auto_drift_start_frame_counter()} / 12
