@@ -17,7 +17,10 @@ def on_frame_advance():
     ctrl = MKWiiGCController(controller)
     user_inputs = ctrl.user_inputs()
 
-    if user_inputs["StickY"] != 0:
+    is_diagonal_input = user_inputs["StickX"] != 0 and user_inputs["StickY"] != 0
+    is_soft_horizontal = abs(user_inputs["StickX"]) < 7
+
+    if is_diagonal_input or is_soft_horizontal:
         ctrl.set_inputs({
             "StickX": clamp(user_inputs["StickX"], -3, 3)
         })
