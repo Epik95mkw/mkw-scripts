@@ -15,10 +15,24 @@ LIGHTGRAY = 0xFFCCCCCC
 T_WHITE = 0x88FFFFFF
 T_BLACK = 0x50000000
 
+def em(x):
+    """convert em (font size units) to pixels"""
+    return x * gui.get_font_size()
 
-def engine_meter(pos: Position):
-    width = 150
-    height = 20
+def vw(x):
+    """convert vw (percent of viewport width) to pixels"""
+    return x * gui.get_display_size()[0]
+
+def vh(x):
+    """convert vh (percent of viewport height) to pixels"""
+    return x * gui.get_display_size()[1]
+
+
+def engine_meter(offset_x = 0, offset_y = 0):
+    width = em(12)
+    height = em(1.5)
+    x = vw(0.95) - width + offset_x
+    y = vh(0.95) - height + offset_y
 
     speed = mkw.KartMove.speed()
     max_speed = 120
@@ -34,24 +48,26 @@ def engine_meter(pos: Position):
     speed_color = GREEN if diff > 0 else ORANGE if diff < 0 else LIGHTGRAY
 
     # Speed bar
-    gui.draw_rect_filled(pos, (pos[0] + speed_progress, pos[1] + height), color=speed_color)
-    gui.draw_text((pos[0] - 10, pos[1] - 17), color=WHITE, text=f'{speed:>7.2f}')
-    gui.draw_text((pos[0] + 40, pos[1] - 17), color=speed_color, text=f'{diff:>+7.2f}')
+    gui.draw_rect_filled((x, y), (x + speed_progress, y + height), color=speed_color)
+    gui.draw_text((x - em(0.5), y - em(1)), color=WHITE, text=f'{speed:>7.2f}')
+    gui.draw_text((x + em(3), y - em(1)), color=speed_color, text=f'{diff:>+7.2f}')
 
     # Speed limit border
-    gui.draw_rect(pos, (pos[0] + limit_progress, pos[1] + height), color=WHITE, thickness=2)
+    gui.draw_rect((x, y), (x + limit_progress, y + height), color=WHITE, thickness=2)
 
     # Border
-    gui.draw_rect(pos, (pos[0] + width, pos[1] + height), color=T_WHITE)
+    gui.draw_rect((x, y), (x + width, y + height), color=T_WHITE)
 
     prev_values[0].update({
         "engine": mkw.KartMove.speed()
     })
 
 
-def mt_meter(pos: Position):
-    width = 100
-    height = 15
+def mt_meter(offset_x = 0, offset_y = 0):
+    width = em(8)
+    height = em(1)
+    x = vw(0.5) - (width / 2) + offset_x
+    y = vh(0.5) - (height / 2) + offset_y
 
     drift_state = mkw.KartMove.drift_state()
 
@@ -73,28 +89,30 @@ def mt_meter(pos: Position):
     boost_color = GREEN
 
     if mt > 0 or boost > 0:
+        # MT boost bar
+        gui.draw_rect_filled((x + width - boost_progress, y), (x + width, y + height), color=boost_color)
+        if boost > 0:
+            gui.draw_text((x + width + 5, y), color=boost_color, text=f'{boost}')
+
         # MT charge bar
-        gui.draw_rect_filled(pos, (pos[0] + mt_progress, pos[1] + height), color=mt_color)
+        gui.draw_rect_filled((x, y), (x + mt_progress, y + height), color=mt_color)
         if mt > 0 and smt == 0:
-            gui.draw_text((pos[0] - 30, pos[1]), color=mt_color, text=f'{mt:>3}')
+            gui.draw_text((x - em(2), y), color=mt_color, text=f'{mt:>3}')
 
         # SMT charge bar
-        gui.draw_rect_filled(pos, (pos[0] + smt_progress, pos[1] + height), color=smt_color)
+        gui.draw_rect_filled((x, y), (x + smt_progress, y + height), color=smt_color)
         if smt > 0:
-            gui.draw_text((pos[0] - 30, pos[1]), color=smt_color, text=f'{smt:>3}')
-
-        # MT boost bar
-        gui.draw_rect_filled((pos[0] + width - boost_progress, pos[1]), (pos[0] + width, pos[1] + height), color=boost_color)
-        if boost > 0:
-            gui.draw_text((pos[0] + width + 5, pos[1]), color=boost_color, text=f'{boost}')
+            gui.draw_text((x - em(2), y), color=smt_color, text=f'{smt:>3}')
 
         # Border
-        gui.draw_rect(pos, (pos[0] + width, pos[1] + height), color=border_color)
+        gui.draw_rect((x, y), (x + width, y + height), color=border_color)
 
 
-def ssmt_meter(pos: Position): # (also includes start boost for now)
-    width = 100
-    height = 15
+def ssmt_meter(offset_x = 0, offset_y = 0): # (also includes start boost for now)
+    width = em(8)
+    height = em(1)
+    x = vw(0.5) - (width / 2) + offset_x
+    y = vh(0.5) - (height / 2) + offset_y
 
     ssmt = mkw.KartMove.ssmt_charge()
     max_ssmt = 75
@@ -109,24 +127,26 @@ def ssmt_meter(pos: Position): # (also includes start boost for now)
 
     if ssmt > 0 or boost > 0:
         # SSMT charge bar
-        gui.draw_rect_filled(pos, (pos[0] + ssmt_progress, pos[1] + height), color=ssmt_color)
+        gui.draw_rect_filled((x, y), (x + ssmt_progress, y + height), color=ssmt_color)
         if ssmt > 0:
-            gui.draw_text((pos[0] - 30, pos[1]), color=ssmt_color, text=f'{ssmt:>3}')
+            gui.draw_text((x - em(2), y), color=ssmt_color, text=f'{ssmt:>3}')
         
         # SSMT boost bar
-        gui.draw_rect_filled((pos[0] + width - boost_progress, pos[1]), (pos[0] + width, pos[1] + height), color=boost_color)
+        gui.draw_rect_filled((x + width - boost_progress, y), (x + width, y + height), color=boost_color)
         if boost > 0:
-            gui.draw_text((pos[0] + width + 5, pos[1]), color=boost_color, text=f'{boost}')
+            gui.draw_text((x + width + 5, y), color=boost_color, text=f'{boost}')
 
         # Border
-        gui.draw_rect(pos, (pos[0] + width, pos[1] + height), color=WHITE)
+        gui.draw_rect((x, y), (x + width, y + height), color=WHITE)
 
 
-def wheelie_meter(pos: Position):
+def wheelie_meter(offset_x = 0, offset_y = 0):
     if not mkw.KartSettings.is_bike():
         return
-    width = 100
-    height = 9
+    width = em(8)
+    height = em(0.6)
+    x = vw(0.5) - (width / 2) + offset_x
+    y = vh(0.5) - (height / 2) + offset_y
 
     in_wheelie = mkw.KartState.bitfield(field_idx=0) & 0x20_000_000
 
@@ -143,27 +163,32 @@ def wheelie_meter(pos: Position):
 
     # wheelie timer
     if in_wheelie:
-        gui.draw_rect_filled((pos[0] + width - progress, pos[1]), (pos[0] + width, pos[1] + height), color=color)
-        gui.draw_text((pos[0] + width + 5, pos[1] - 2), color=color, text=f'{timer}')
+        gui.draw_rect_filled((x + width - progress, y), (x + width, y + height), color=color)
+        gui.draw_text((x + width + 5, y - em(0.13)), color=color, text=f'{timer}')
     # cooldown
     if not in_wheelie and cooldown > 0:
-        gui.draw_rect_filled((pos[0] + width - cooldown_progress, pos[1]), (pos[0] + width, pos[1] + height), color=cooldown_color)
-        gui.draw_text((pos[0] + width + 5, pos[1] - 2), color=cooldown_color, text=f'{cooldown}')
+        gui.draw_rect_filled((x + width - cooldown_progress, y), (x + width, y + height), color=cooldown_color)
+        gui.draw_text((x + width + 5, y - em(0.13)), color=cooldown_color, text=f'{cooldown}')
 
 
-def airtime_indicator(pos: Position):
-    r = 7
+def airtime_indicator(offset_x = 0, offset_y = 0):
+    r = em(0.5)
+    x = vw(0.5) - em(2) + offset_x
+    y = vh(0.5) - r + offset_y
+
     airtime = mkw.KartState.airtime()
     color = T_WHITE
 
     if airtime > 0:
-        gui.draw_circle_filled((pos[0] + r, pos[1] + r), radius=r, color=color)
-        gui.draw_text((pos[0] + 2*r + 5, pos[1]), color=color, text=f'AIR {airtime}')
+        gui.draw_circle_filled((x + r, y + r), radius=r, color=color)
+        gui.draw_text((x + 2*r + 5, y), color=color, text=f'AIR {airtime}')
 
 
-def boost_meter(pos: Position):
-    width = 100
-    height = 15
+def boost_meter(offset_x = 0, offset_y = 0):
+    width = em(8)
+    height = em(1)
+    x = vw(0.5) - (width / 2) + offset_x
+    y = vh(0.5) - (height / 2) + offset_y
 
     boost = mkw.KartBoost.mushroom_and_boost_panel_timer()
     max_boost = 90
@@ -172,14 +197,16 @@ def boost_meter(pos: Position):
     color = ORANGE
 
     if boost > 0:
-        gui.draw_rect_filled((pos[0] + width - progress, pos[1]), (pos[0] + width, pos[1] + height), color=color)
-        gui.draw_rect(pos, (pos[0] + width, pos[1] + height), color=WHITE)
-        gui.draw_text((pos[0] - 30, pos[1]), color=WHITE, text=f'{boost:>3}')
+        gui.draw_rect_filled((x + width - progress, y), (x + width, y + height), color=color)
+        gui.draw_rect((x, y), (x + width, y + height), color=WHITE)
+        gui.draw_text((x - em(2), y), color=WHITE, text=f'{boost:>3}')
     
 
-def trick_meter(pos: Position):
-    width = 100
-    height = 15
+def trick_meter(offset_x = 0, offset_y = 0):
+    width = em(8)
+    height = em(1)
+    x = vw(0.5) - (width / 2) + offset_x
+    y = vh(0.5) - (height / 2) + offset_y
 
     boost = mkw.KartBoost.trick_and_zipper_timer()
     max_boost = 95
@@ -188,19 +215,22 @@ def trick_meter(pos: Position):
     color = ORANGE
 
     if boost > 0:
-        gui.draw_rect_filled((pos[0] + width - progress, pos[1]), (pos[0] + width, pos[1] + height), color=color)
-        gui.draw_rect(pos, (pos[0] + width, pos[1] + height), color=WHITE)
-        gui.draw_text((pos[0] - 30, pos[1]), color=WHITE, text=f'{boost:>3}')
+        gui.draw_rect_filled((x + width - progress, y), (x + width, y + height), color=color)
+        gui.draw_rect((x, y), (x + width, y + height), color=WHITE)
+        gui.draw_text((x - em(2), y), color=WHITE, text=f'{boost:>3}')
 
 
 def render(player_idx: int = 0):
-    engine_meter((1150, 560))
-    mt_meter((765, 230))
-    ssmt_meter((765, 230))
-    wheelie_meter((765, 250))
-    airtime_indicator((780, 262))
-    boost_meter((765, 210))
-    trick_meter((765, 190))
+    engine_meter()
+
+    # center meters
+    base_y = -vh(0.05)
+    mt_meter(0, base_y - em(2.2))
+    ssmt_meter(0, base_y - em(2.2))
+    wheelie_meter(0, base_y - em(1.1))
+    airtime_indicator(0, base_y)
+    boost_meter(0, base_y - em(3.3))
+    trick_meter(0, base_y - em(4.4))
 
 
 @event.on_frameadvance
