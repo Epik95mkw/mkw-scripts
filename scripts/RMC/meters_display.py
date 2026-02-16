@@ -1,19 +1,18 @@
 from dolphin import event, gui, memory # type: ignore
 from Modules import mkw_classes as mkw, mkw_utils
-from typing import Tuple
-
-Position = Tuple[float, float]
 
 NO_DELAY = True
 
 WHITE = 0xFFFFFFFF
 BLUE = 0xFF00FFFF
 YELLOW = 0xFFFFFF00
+RED = 0xFFFF0000
 ORANGE = 0xFFFFC000
 GREEN = 0xFF00FF00
 LIGHTGRAY = 0xFFCCCCCC
 T_WHITE = 0x88FFFFFF
 T_BLACK = 0x50000000
+T_RED = 0x88FF0000
 
 def em(x):
     """convert em (font size units) to pixels"""
@@ -220,17 +219,53 @@ def trick_meter(offset_x = 0, offset_y = 0):
         gui.draw_text((x - em(2), y), color=WHITE, text=f'{boost:>3}')
 
 
+def oob_indicator(offset_x = 0, offset_y = 0):
+    width = em(8)
+    height = em(0.6)
+    x = vw(0.5) - (width / 2) + offset_x
+    y = vh(0.5) - (height / 2) + offset_y
+
+    is_before_respawn = mkw.KartState.bitfield(field_idx=0) & 16 > 0
+    is_during_respawn = mkw.KartMove.time_in_respawn() > 0
+
+    max_timer = 110
+    timer = max_timer - mkw.KartMove.time_in_respawn()
+    progress = (timer / max_timer) * width
+
+    color = RED
+
+    if is_before_respawn or is_during_respawn:
+        # Text
+        gui.draw_text((vw(0.5) - em(3.5), y - em(1)), color=color, text='Out of Bounds')
+
+        # Respawn timer
+        if is_during_respawn:
+            gui.draw_rect_filled((x + width - progress, y), (x + width, y + height), color=color)
+            gui.draw_text((x + width + 5, y - em(0.13)), color=color, text=f'{timer}')
+
+        return True
+    else:
+        return False
+
+
 def render(player_idx: int = 0):
     engine_meter()
 
     # center meters
     base_y = -vh(0.05)
-    mt_meter(0, base_y - em(2.2))
-    ssmt_meter(0, base_y - em(2.2))
-    wheelie_meter(0, base_y - em(1.1))
-    airtime_indicator(0, base_y)
-    boost_meter(0, base_y - em(3.3))
-    trick_meter(0, base_y - em(4.4))
+    if not oob_indicator(0, base_y):
+        mt_meter(0, base_y - em(2.2))
+        ssmt_meter(0, base_y - em(2.2))
+        wheelie_meter(0, base_y - em(1.1))
+        airtime_indicator(0, base_y)
+        boost_meter(0, base_y - em(3.3))
+        trick_meter(0, base_y - em(4.4))
+    
+    # gui.draw_text((10, 10), color=WHITE, text=(
+    #     f'{mkw.KartJump.cooldown()=}\n'
+    #     f'{mkw.KartJump.next_allow_timer()=}\n'
+    #     f'{mkw.KartState.trickable_timer()=}'
+    # ))
 
 
 @event.on_frameadvance
