@@ -67,10 +67,13 @@ def create_infodisplay(player_idx: int = 0):
 f"""
 Frame: {mkw_utils.frame_of_input()}
 
-Position
-  X: {round_str(pos.x)}
-  Y: {round_str(pos.y)}
-  Z: {round_str(pos.z)}
+
+
+
+
+
+
+
 
 Velocity
   Engine:  {round_str(kart_move.speed())} / {round_str(kart_move.soft_speed_limit(), 2)}
@@ -83,15 +86,26 @@ External Velocity
   XZ:   {round_str(ev.length_xz())}  ({delta(ev.length_xz(), prev_values[player_idx].get("ev_xz"))})
   Y:    {round_str(ev.y)}  ({delta(ev.y, prev_values[player_idx].get("ev_y"))})
 
-Lean Rotation
-  Angle:  {is_bike and round_(kart_move.lean_rot())}
-  Rate:   {is_bike and round_(kart_move.lean_rot_increase())}
-  Cap:    {is_bike and round_(kart_move.lean_rot_cap())}
-
 Checkpoints
   Lap%:  {round_str(race_mgr_player.lap_completion())}
   Race%: {round_str(race_mgr_player.race_completion())}
   CP: {race_mgr_player.checkpoint_id()} | KCP: {race_mgr_player.max_kcp()} | RP: {race_mgr_player.respawn()}
+
+""")
+
+    #? Other infodisplay sections that can be copy/pasted in if needed
+    _unused = (
+
+"""
+Position
+  X: {round_str(pos.x)}
+  Y: {round_str(pos.y)}
+  Z: {round_str(pos.z)}
+
+Lean Rotation
+  Angle:  {is_bike and round_(kart_move.lean_rot())}
+  Rate:   {is_bike and round_(kart_move.lean_rot_increase())}
+  Cap:    {is_bike and round_(kart_move.lean_rot_cap())}
 
 Boosts
   MT: {kart_move.mt_charge() + (1 if kart_move.drift_state() == 2 else 0)} / 271 -> {kart_move.mt_boost_timer()}
@@ -105,14 +119,6 @@ Barrel Roll: {kart_state.bitfield(field_idx=3) & 0x10 > 0}
 
 HWG Timer: {kart_state.hwg_timer()}
 Glitchy corner: {round_(kart_collide.glitchy_corner())}
-
-""")
-
-    #? Other infodisplay sections that can be copy/pasted in if needed
-    _unused = (
-
-"""
-
 
 Surface properties: {surface_properties}
 
