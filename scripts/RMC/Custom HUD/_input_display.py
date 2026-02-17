@@ -100,6 +100,17 @@ def render():
     draw_LR_button(x_offset + 20*SCALE, y_offset, ablr.value & mkw.ButtonActions.B)
     draw_A_button(x_offset + 21.5*SCALE, y_offset + 3.5*SCALE, ablr.value & mkw.ButtonActions.A)
 
+    csv_row = '   '.join([
+        f'{1 if ablr.value & mkw.ButtonActions.A else 0}',
+        f'{1 if ablr.value & mkw.ButtonActions.B else 0}',
+        f'{1 if ablr.value & mkw.ButtonActions.L else 0}',
+        f'{xstick:+}',
+        f'{ystick:+}',
+        f'{dpad}',
+        '-'
+    ])
+    gui.draw_text((x_offset + 2*SCALE, vh(1.0) - em(1.5)), color=WHITE, text=csv_row)
+
 
 @event.on_frameadvance
 def on_frame_advance():
