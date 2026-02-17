@@ -1,65 +1,6 @@
 from dolphin import event, gui, memory # type: ignore
 from Modules import mkw_classes as mkw, mkw_utils
-
-NO_DELAY = True
-
-WHITE = 0xFFFFFFFF
-BLUE = 0xFF00FFFF
-YELLOW = 0xFFFFFF00
-RED = 0xFFFF0000
-ORANGE = 0xFFFFC000
-GREEN = 0xFF00FF00
-LIGHTGRAY = 0xFFCCCCCC
-T_WHITE = 0x88FFFFFF
-T_BLACK = 0x50000000
-T_RED = 0x88FF0000
-
-def em(x):
-    """convert em (font size units) to pixels"""
-    return x * gui.get_font_size()
-
-def vw(x):
-    """convert vw (percent of viewport width) to pixels"""
-    return x * gui.get_display_size()[0]
-
-def vh(x):
-    """convert vh (percent of viewport height) to pixels"""
-    return x * gui.get_display_size()[1]
-
-
-def engine_meter(offset_x = 0, offset_y = 0):
-    width = em(12)
-    height = em(1.5)
-    x = vw(0.95) - width + offset_x
-    y = vh(0.95) - height + offset_y
-
-    speed = mkw.KartMove.speed()
-    max_speed = 120
-    speed_progress = (speed / max_speed) * width
-
-    limit = mkw.KartMove.soft_speed_limit()
-    max_limit = 120
-    limit_progress = (limit / max_limit) * width
-
-    prev_speed = prev_values[0].get('engine', speed)
-    diff = speed - prev_speed
-
-    speed_color = GREEN if diff > 0 else ORANGE if diff < 0 else LIGHTGRAY
-
-    # Speed bar
-    gui.draw_rect_filled((x, y), (x + speed_progress, y + height), color=speed_color)
-    gui.draw_text((x - em(0.5), y - em(1)), color=WHITE, text=f'{speed:>7.2f}')
-    gui.draw_text((x + em(3), y - em(1)), color=speed_color, text=f'{diff:>+7.2f}')
-
-    # Speed limit border
-    gui.draw_rect((x, y), (x + limit_progress, y + height), color=WHITE, thickness=2)
-
-    # Border
-    gui.draw_rect((x, y), (x + width, y + height), color=T_WHITE)
-
-    prev_values[0].update({
-        "engine": mkw.KartMove.speed()
-    })
+from Modules.custom_hud import *
 
 
 def mt_meter(offset_x = 0, offset_y = 0):
@@ -249,9 +190,6 @@ def oob_indicator(offset_x = 0, offset_y = 0):
 
 
 def render(player_idx: int = 0):
-    engine_meter()
-
-    # center meters
     base_y = -vh(0.05)
     if not oob_indicator(0, base_y):
         mt_meter(0, base_y - em(2.2))
@@ -270,12 +208,8 @@ def render(player_idx: int = 0):
 
 @event.on_frameadvance
 def on_frame_advance():
-    global current_frame
-    current_frame = mkw_utils.frame_of_input()
-
     if mkw_utils.extended_race_state() >= 0:
         render()
-
 
 @event.on_savestateload
 def on_state_load(fromSlot: bool, slot: int):
@@ -286,15 +220,3 @@ def on_state_load(fromSlot: bool, slot: int):
 def on_state_save(fromSlot: bool, slot: int):
     if NO_DELAY and memory.is_memory_accessible() and mkw_utils.extended_race_state() >= 0:
         render()
-
-
-def main():
-    global current_frame
-    current_frame = 0
-
-    global prev_values
-    prev_values = [ {}, {} ]
-
-
-if __name__ == '__main__':
-    main()

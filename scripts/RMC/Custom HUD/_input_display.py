@@ -1,23 +1,8 @@
 from dolphin import event, gui, memory # type: ignore
 from Modules import mkw_classes as mkw, mkw_utils
+from Modules.custom_hud import *
 
 SCALE = 12
-
-WHITE = 0xFFFFFFFF
-T_WHITE = 0x88FFFFFF
-
-def em(x):
-    """convert em (font size units) to pixels"""
-    return x * gui.get_font_size()
-
-def vw(x):
-    """convert vw (percent of viewport width) to pixels"""
-    return x * gui.get_display_size()[0]
-
-def vh(x):
-    """convert vh (percent of viewport height) to pixels"""
-    return x * gui.get_display_size()[1]
-
 
 def draw_LR_button(x, y, filled):
     width = 8 * SCALE
@@ -114,14 +99,15 @@ def render():
 
 @event.on_frameadvance
 def on_frame_advance():
-    render()
-
-@event.on_savestatesave
-def on_state_load(fromSlot: bool, slot: int):    
-    if memory.is_memory_accessible():
+    if mkw_utils.extended_race_state() >= 0:
         render()
 
 @event.on_savestateload
 def on_state_load(fromSlot: bool, slot: int):
-    if memory.is_memory_accessible():
+    if memory.is_memory_accessible() and mkw_utils.extended_race_state() >= 0:
+        render()
+
+@event.on_savestatesave
+def on_state_save(fromSlot: bool, slot: int):
+    if NO_DELAY and memory.is_memory_accessible() and mkw_utils.extended_race_state() >= 0:
         render()
