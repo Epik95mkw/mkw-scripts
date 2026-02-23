@@ -146,6 +146,8 @@ class KartMove:
         self.wheelie_frames = self.inst_wheelie_frames
         self.wheelie_cooldown = self.inst_wheelie_cooldown
         self.wheelie_rotation_decrease = self.inst_wheelie_rotation_decrease
+        self.auto_hard_turn_frames = self.inst_auto_hard_turn_frames
+        self.turning_parameters = self.inst_turning_parameters
     
     @staticmethod
     def chain(player_idx=0) -> int:
@@ -1050,3 +1052,117 @@ class KartMove:
         assert(self.is_bike)
         wheelie_rotation_decrease_ref = self.addr + 0x2B8
         return memory.read_f32(wheelie_rotation_decrease_ref)
+    
+    @staticmethod
+    def auto_hard_turn_frames(player_idx=0) -> int:
+        assert(KartSettings.is_bike(player_idx))
+        kart_move_ref = KartMove.chain(player_idx)
+        auto_hard_turn_frames_ref = kart_move_ref + 0x2BC
+        return memory.read_u16(auto_hard_turn_frames_ref)
+    
+    def inst_auto_hard_turn_frames(self) -> int:
+        assert(self.is_bike)
+        auto_hard_turn_frames_ref = self.addr + 0x2BC
+        return memory.read_u16(auto_hard_turn_frames_ref)
+    
+    @staticmethod
+    def turning_parameters(player_idx=0) -> int:
+        assert(KartSettings.is_bike(player_idx))
+        kart_move_ref = KartMove.chain(player_idx)
+        turning_parameters_ref = kart_move_ref + 0x2C0
+        return memory.read_u32(turning_parameters_ref)
+    
+    def inst_turning_parameters(self) -> int:
+        assert(self.is_bike)
+        turning_parameters_ref = self.addr + 0x2C0
+        return memory.read_u32(turning_parameters_ref)
+    
+    class TurningParameters:
+        # f32 leanRotShallowFactor;
+        # f32 leanRotIncRace;
+        # f32 leanRotCapRace;
+        # f32 driftStickXFactor;
+        # f32 leanRotMaxDrift;
+        # f32 leanRotMinDrift;
+        # f32 leanRotIncCountdown;
+        # f32 leanRotCapCountdown;
+        # f32 leanRotIncSSMT;
+        # f32 leanRotCapSSMT;
+        # f32 leanRotDecayFactor;
+        # u16 maxWheelieFrames;
+
+        def __init__(self, player_idx=0, addr=None):
+            self.addr = addr if addr else KartMove.TurningParameters.chain(player_idx)
+
+            self.lean_rot_shallow_factor = self.inst_lean_rot_shallow_factor
+            self.lean_rot_inc_race = self.inst_lean_rot_inc_race
+            self.lean_rot_cap_race = self.inst_lean_rot_cap_race
+            self.drift_stick_x_factor = self.inst_drift_stick_x_factor
+            self.lean_rot_max_drift = self.inst_lean_rot_max_drift
+            self.lean_rot_min_drift = self.inst_lean_rot_min_drift
+
+        @staticmethod
+        def chain(player_idx=0) -> int:
+            return KartMove.turning_parameters(player_idx=0)
+        
+        @staticmethod
+        def lean_rot_shallow_factor(player_idx=0) -> float:
+            turning_parameters_ref = KartMove.TurningParameters.chain(player_idx)
+            lean_rot_shallow_factor_ref = turning_parameters_ref + 0x0
+            return memory.read_f32(lean_rot_shallow_factor_ref)
+        
+        def inst_lean_rot_shallow_factor(self) -> float:
+            lean_rot_shallow_factor_ref = self.addr + 0x0
+            return memory.read_f32(lean_rot_shallow_factor_ref)
+        
+        @staticmethod
+        def lean_rot_inc_race(player_idx=0) -> float:
+            turning_parameters_ref = KartMove.TurningParameters.chain(player_idx)
+            lean_rot_inc_race_ref = turning_parameters_ref + 0x4
+            return memory.read_f32(lean_rot_inc_race_ref)
+        
+        def inst_lean_rot_inc_race(self) -> float:
+            lean_rot_inc_race_ref = self.addr + 0x4
+            return memory.read_f32(lean_rot_inc_race_ref)
+        
+        @staticmethod
+        def lean_rot_cap_race(player_idx=0) -> float:
+            turning_parameters_ref = KartMove.TurningParameters.chain(player_idx)
+            lean_rot_cap_race_ref = turning_parameters_ref + 0x8
+            return memory.read_f32(lean_rot_cap_race_ref)
+        
+        def inst_lean_rot_cap_race(self) -> float:
+            lean_rot_cap_race_ref = self.addr + 0x8
+            return memory.read_f32(lean_rot_cap_race_ref)
+        
+        @staticmethod
+        def drift_stick_x_factor(player_idx=0) -> float:
+            turning_parameters_ref = KartMove.TurningParameters.chain(player_idx)
+            drift_stick_x_factor_ref = turning_parameters_ref + 0xC
+            return memory.read_f32(drift_stick_x_factor_ref)
+        
+        def inst_drift_stick_x_factor(self) -> float:
+            drift_stick_x_factor_ref = self.addr + 0xC
+            return memory.read_f32(drift_stick_x_factor_ref)
+        
+        @staticmethod
+        def lean_rot_max_drift(player_idx=0) -> float:
+            turning_parameters_ref = KartMove.TurningParameters.chain(player_idx)
+            lean_rot_max_drift_ref = turning_parameters_ref + 0x10
+            return memory.read_f32(lean_rot_max_drift_ref)
+        
+        def inst_lean_rot_max_drift(self) -> float:
+            lean_rot_max_drift_ref = self.addr + 0x10
+            return memory.read_f32(lean_rot_max_drift_ref)
+        
+        @staticmethod
+        def lean_rot_min_drift(player_idx=0) -> float:
+            turning_parameters_ref = KartMove.TurningParameters.chain(player_idx)
+            lean_rot_min_drift_ref = turning_parameters_ref + 0x14
+            return memory.read_f32(lean_rot_min_drift_ref)
+        
+        def inst_lean_rot_min_drift(self) -> float:
+            lean_rot_min_drift_ref = self.addr + 0x14
+            return memory.read_f32(lean_rot_min_drift_ref)
+        
+        #TODO: more accessors

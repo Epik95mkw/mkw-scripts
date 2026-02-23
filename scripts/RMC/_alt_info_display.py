@@ -72,9 +72,6 @@ Frame: {mkw_utils.frame_of_input()}
 
 
 
-
-
-
 Velocity
   Engine:  {round_str(kart_move.speed())} / {round_str(kart_move.soft_speed_limit(), 2)}
   XYZ:     {round_str(v.length())}
@@ -90,6 +87,13 @@ Checkpoints
   Lap%:  {round_str(race_mgr_player.lap_completion())}
   Race%: {round_str(race_mgr_player.race_completion())}
   CP: {race_mgr_player.checkpoint_id()} | KCP: {race_mgr_player.max_kcp()} | RP: {race_mgr_player.respawn()}
+
+Lean Rotation
+  Angle:  {is_bike and round_(kart_move.lean_rot())}
+  Rate:   {is_bike and round_(kart_move.lean_rot_increase())}
+  Cap:    {is_bike and round_(kart_move.lean_rot_cap())}
+          {is_bike and round_(kart_move.drift_state())}
+          {is_bike and round_(kart_move.hop_stick_x())}
 
 """)
 
